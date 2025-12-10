@@ -1,117 +1,517 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8"/>
-<title>TOEIC Trainer v2</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {font-family: sans-serif; padding:20px; background:#fafafa;}
-h1 {font-size:22px;}
-button {padding:10px 20px; margin:10px 0; border-radius:8px; border:none; background:#007bff; color:white; font-size:16px;}
-.section {background:white; padding:15px; border-radius:10px; margin:15px 0; box-shadow:0 0 4px rgba(0,0,0,.1);}
-.choice {margin:8px 0;}
-pre {white-space: pre-wrap; background:#f0f0f0; padding:10px; border-radius:8px;}
-</style>
+  <meta charset="UTF-8" />
+  <title>TOEIC Trainer v3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #f3f4f6;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+    }
+    .app {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 8px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .controls label {
+      font-size: 13px;
+      color: #4b5563;
+    }
+    input[type="number"] {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+      width: 90px;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .primary {
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: #fff;
+    }
+    .secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .section {
+      margin-bottom: 12px;
+    }
+    .section h2 {
+      font-size: 1rem;
+      margin: 0 0 6px;
+    }
+    pre.passage {
+      white-space: pre-wrap;
+      background: #f9fafb;
+      padding: 8px;
+      border-radius: 8px;
+      margin: 4px 0 8px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .question-block {
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .choice {
+      font-size: 14px;
+      margin: 2px 0;
+    }
+    .choice input {
+      margin-right: 6px;
+    }
+    .analysis-line {
+      font-size: 13px;
+      margin-top: 4px;
+      border-top: 1px dashed #e5e7eb;
+      padding-top: 4px;
+    }
+    .analysis-correct { color: #15803d; }
+    .analysis-wrong { color: #b91c1c; }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #e5edff;
+      color: #1d4ed8;
+      margin-right: 4px;
+    }
+    .stats-row {
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-top: 4px;
+    }
+    .pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      font-size: 11px;
+      margin-right: 4px;
+    }
+    @media (max-width: 640px) {
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      button, input[type="number"] {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-<h1>TOEIC Trainer v2</h1>
-<p>（听力已移除・按 Part 顺序出题・阅读段落完整呈现）</p>
+<div class="app">
+  <div class="card">
+    <h1>TOEIC Trainer v3（多文件题库版）</h1>
+    <div style="font-size:13px;color:#6b7280;margin-bottom:4px;">
+      🎯 目标：每天 10–100 题，按 Part5 → Part6 → Part7 顺序练习，阅读一篇文章内的多题一起出现。听力部分已去除。
+    </div>
+    <div class="controls">
+      <label>本次题量（10–100）：
+        <input id="countInput" type="number" min="10" max="100" value="20" />
+      </label>
+      <button id="startBtn" class="primary">🎯 生成题目</button>
+      <button id="submitBtn" class="secondary">✅ 提交并查看解析</button>
+    </div>
+    <div style="font-size:13px;color:#4b5563;">
+      计时：<span id="timer">00:00</span> · 平均每题：<span id="avgTime">--</span> 秒
+    </div>
+  </div>
 
-<div id="container"></div>
+  <div id="questionsContainer"></div>
 
-<button onclick="next()">开始训练</button>
+  <div id="resultCard" class="card" style="display:none;">
+    <h2 style="font-size:1rem;margin:0 0 6px;">本次结果</h2>
+    <div id="summaryText" style="font-size:13px;margin-bottom:4px;"></div>
+    <div id="detailStats" class="stats-row"></div>
+    <div id="advice" style="font-size:13px;margin-top:6px;color:#0f172a;white-space:pre-wrap;"></div>
+  </div>
 
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="font-size:1rem;margin:0;">历史记录（保存在本机）</h2>
+      <button id="toggleHistory" class="secondary">显示/隐藏</button>
+    </div>
+    <div id="historyBox" style="display:none;margin-top:6px;font-size:13px;"></div>
+  </div>
+</div>
+
+<!-- 先加载题库，再加载逻辑 -->
+<script src="toeic-part5.js"></script>
+<script src="toeic-part6.js"></script>
+<script src="toeic-part7.js"></script>
 <script>
-// ======== Dataset（演示数据，可扩展）========
-const dataset = [
-  // ---- Part 5 ----
-  {
-    part: 5,
-    type: "Grammar",
-    questions: [
-      {
-        q: "The manager ______ the new policy next Monday.",
-        options: ["announce", "announced", "will announce", "announcing"],
-        answer: 2
-      }
-    ]
-  },
+/**
+ * 期望题库结构：
+ * - PART5_QUESTIONS: 数组，元素 { id, part:5, question, options:{A,B,C,D}, answer, explanation }
+ * - PART6_SETS: 数组，元素 { id, part:6, title, passage, questions:[ { id, question, options, answer, explanation } ] }
+ * - PART7_SETS: 数组，元素同上，part:7
+ */
 
-  // ---- Part 6 ----
-  {
-    part: 6,
-    type: "Text Completion",
-    passage: "Our company is pleased to announce the opening of a new branch office. _____. We look forward to serving our customers better.",
-    questions: [
-      {
-        q: "Which sentence best completes the text?",
-        options: [
-          "The construction was delayed.",
-          "It will begin operations next month.",
-          "Employees must register immediately.",
-          "The office will close today."
-        ],
-        answer: 1
-      }
-    ]
-  },
-
-  // ---- Part 7 ----
-  {
-    part: 7,
-    type: "Reading (Single Passage)",
-    passage: "NOTICE:\nA workshop on effective communication will be held next Thursday at 3 PM in Meeting Room B. Registration is required.",
-    questions: [
-      {
-        q: "What can be inferred about the workshop?",
-        options: [
-          "It is only for new employees.",
-          "It will be held after business hours.",
-          "Participants must register in advance.",
-          "It is free for the general public."
-        ],
-        answer: 2
-      },
-      {
-        q: "What time will the workshop begin?",
-        options: ["2 PM", "3 PM", "4 PM", "5 PM"],
-        answer: 1
-      }
-    ]
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
-];
+  return a;
+}
 
-let idx = 0;
+let sessionItems = [];   // [{kind:"single"/"set", part, data}]
+let ANSWER_KEY = {};     // qid -> { answer, part }
+let startTime = null;
+let timerId = null;
 
-// ======== Display Next Part ========
-function next() {
-  if (idx >= dataset.length) {
-    document.getElementById("container").innerHTML = "<h2>🎉 训练完成！</h2>";
+function startTimer() {
+  if (timerId) clearInterval(timerId);
+  startTime = Date.now();
+  const timerEl = document.getElementById("timer");
+  const avgEl = document.getElementById("avgTime");
+  timerEl.textContent = "00:00";
+  avgEl.textContent = "--";
+  timerId = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
+    const s = String(elapsed % 60).padStart(2, "0");
+    timerEl.textContent = m + ":" + s;
+    const totalQ = Object.keys(ANSWER_KEY).length || 1;
+    avgEl.textContent = (elapsed / totalQ).toFixed(1);
+  }, 1000);
+}
+
+/** 构建本次训练题目，按 Part5 → Part6 → Part7 顺序，不拆阅读/段落 */
+function buildSession(totalRequested) {
+  const total = Math.max(10, Math.min(100, totalRequested || 20));
+  let remaining = total;
+  const items = [];
+  ANSWER_KEY = {};
+
+  // Part 5：单题
+  const p5 = shuffle((typeof PART5_QUESTIONS !== "undefined" ? PART5_QUESTIONS : []).slice());
+  for (const q of p5) {
+    if (remaining <= 0) break;
+    items.push({ kind: "single", part: 5, data: q });
+    ANSWER_KEY[q.id] = { answer: q.answer, part: 5 };
+    remaining -= 1;
+  }
+
+  // Part 6：段落
+  const p6 = shuffle((typeof PART6_SETS !== "undefined" ? PART6_SETS : []).slice());
+  for (const set of p6) {
+    const count = set.questions.length;
+    if (remaining <= 0) break;
+    // 已经有题目了且该段落题量超过剩余题量，就先跳过
+    if (count > remaining && items.length > 0) continue;
+    items.push({ kind: "set", part: 6, data: set });
+    set.questions.forEach(q => {
+      ANSWER_KEY[q.id] = { answer: q.answer, part: 6 };
+    });
+    remaining -= count;
+  }
+
+  // Part 7：阅读
+  const p7 = shuffle((typeof PART7_SETS !== "undefined" ? PART7_SETS : []).slice());
+  for (const set of p7) {
+    const count = set.questions.length;
+    if (remaining <= 0) break;
+    if (count > remaining && items.length > 0) continue;
+    items.push({ kind: "set", part: 7, data: set });
+    set.questions.forEach(q => {
+      ANSWER_KEY[q.id] = { answer: q.answer, part: 7 };
+    });
+    remaining -= count;
+  }
+
+  sessionItems = items;
+}
+
+/** 渲染题目 */
+function renderSession() {
+  const container = document.getElementById("questionsContainer");
+  container.innerHTML = "";
+  document.getElementById("resultCard").style.display = "none";
+
+  if (!sessionItems.length) {
+    container.innerHTML = "<div class='card'>当前题库不足或未加载成功，请稍后再试。</div>";
     return;
   }
 
-  const item = dataset[idx];
+  sessionItems.forEach((item, idxSection) => {
+    const sec = document.createElement("div");
+    sec.className = "card section";
+    const partLabel = `Part ${item.part}`;
+    const title = item.data.title ? " · " + item.data.title : "";
+    sec.innerHTML = `<h2><span class="badge">${partLabel}</span>第 ${idxSection + 1} 组${title}</h2>`;
 
-  let html = `<div class='section'><h2>Part ${item.part} · ${item.type}</h2>`;
+    if (item.kind === "single") {
+      // Part 5 单题
+      const qBlock = document.createElement("div");
+      qBlock.className = "question-block";
+      qBlock.innerHTML = `<div class="question-text">${item.data.question}</div>`;
+      const opts = item.data.options;
+      for (const key of ["A","B","C","D"]) {
+        if (!opts[key]) continue;
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.innerHTML = `
+          <label>
+            <input type="radio" name="q_${item.data.id}" value="${key}"> (${key}) ${opts[key]}
+          </label>
+        `;
+        qBlock.appendChild(div);
+      }
+      const analysis = document.createElement("div");
+      analysis.id = "analysis_" + item.data.id;
+      analysis.className = "analysis-line";
+      analysis.style.display = "none";
+      qBlock.appendChild(analysis);
+      sec.appendChild(qBlock);
+    } else if (item.kind === "set") {
+      // Part 6 / 7 段落+多题
+      const pre = document.createElement("pre");
+      pre.className = "passage";
+      pre.textContent = item.data.passage;
+      sec.appendChild(pre);
 
-  if (item.passage) {
-    html += `<pre>${item.passage}</pre>`;
+      item.data.questions.forEach((q, idxQ) => {
+        const qBlock = document.createElement("div");
+        qBlock.className = "question-block";
+        const numPrefix = item.part === 6 ? `(空格 ${idxQ + 1}) ` : `Q${idxQ + 1}. `;
+        qBlock.innerHTML = `<div class="question-text">${numPrefix}${q.question}</div>`;
+        for (const key of ["A","B","C","D"]) {
+          if (!q.options[key]) continue;
+          const div = document.createElement("div");
+          div.className = "choice";
+          div.innerHTML = `
+            <label>
+              <input type="radio" name="q_${q.id}" value="${key}"> (${key}) ${q.options[key]}
+            </label>
+          `;
+          qBlock.appendChild(div);
+        }
+        const analysis = document.createElement("div");
+        analysis.id = "analysis_" + q.id;
+        analysis.className = "analysis-line";
+        analysis.style.display = "none";
+        qBlock.appendChild(analysis);
+        sec.appendChild(qBlock);
+      });
+    }
+
+    container.appendChild(sec);
+  });
+}
+
+/** 评分 */
+function grade() {
+  if (!sessionItems.length) return;
+  if (timerId) clearInterval(timerId);
+
+  const answers = ANSWER_KEY;
+  let correct = 0;
+  let total = 0;
+  let wrongP5 = 0, wrongP6 = 0, wrongP7 = 0;
+
+  for (const qid in answers) {
+    total++;
+    const meta = answers[qid];
+    const chosenEl = document.querySelector(`input[name="q_${qid}"]:checked`);
+    const chosen = chosenEl ? chosenEl.value : null;
+    const isCorrect = chosen === meta.answer;
+    if (isCorrect) correct++;
+    else {
+      if (meta.part === 5) wrongP5++;
+      if (meta.part === 6) wrongP6++;
+      if (meta.part === 7) wrongP7++;
+    }
+    const analysis = document.getElementById("analysis_" + qid);
+    if (analysis) {
+      const info = findQuestionById(qid);
+      const baseText = `你的答案：${chosen || "未作答"}；正确答案：${meta.answer}。`;
+      const expl = info && info.explanation ? `解析：${info.explanation}` : "";
+      analysis.style.display = "block";
+      if (isCorrect) {
+        analysis.classList.remove("analysis-wrong");
+        analysis.classList.add("analysis-correct");
+        analysis.textContent = "✔ 正确。" + (expl ? " " + expl : "");
+      } else {
+        analysis.classList.remove("analysis-correct");
+        analysis.classList.add("analysis-wrong");
+        analysis.textContent = "✘ 错误。" + baseText + (expl ? " " + expl : "");
+      }
+    }
   }
 
-  item.questions.forEach((q, i) => {
-    html += `<p>${q.q}</p>`;
-    q.options.forEach((op, j) => {
-      html += `<div class='choice'><label><input type='radio' name='q${i}'> ${op}</label></div>`;
-    });
+  const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+  const avg = total ? (elapsedSec / total).toFixed(1) : "--";
+  document.getElementById("avgTime").textContent = avg;
+  document.getElementById("timer").textContent =
+    String(Math.floor(elapsedSec / 60)).padStart(2, "0") + ":" +
+    String(elapsedSec % 60).padStart(2, "0");
+
+  const accuracy = total ? (correct / total * 100).toFixed(1) : "0.0";
+  document.getElementById("summaryText").textContent =
+    `共 ${total} 题，答对 ${correct} 题，正确率 ${accuracy}% 。总用时 ${elapsedSec} 秒，平均每题 ${avg} 秒。`;
+
+  const stats = document.getElementById("detailStats");
+  stats.innerHTML = "";
+  if (wrongP5 + wrongP6 + wrongP7 === 0) {
+    stats.textContent = "本次全部做对，可以适当提高题量或缩短时间。";
+  } else {
+    if (wrongP5) stats.innerHTML += `<span class="pill">Part5 错题：${wrongP5}</span>`;
+    if (wrongP6) stats.innerHTML += `<span class="pill">Part6 错题：${wrongP6}</span>`;
+    if (wrongP7) stats.innerHTML += `<span class="pill">Part7 错题：${wrongP7}</span>`;
+  }
+
+  const adviceEl = document.getElementById("advice");
+  let advice = "";
+  if (wrongP5) advice += "📐 Part5：把错题按照语法点（时态、词性、连词等）分类，针对同类再做 5～10 题。\n";
+  if (wrongP6) advice += "📚 Part6：练习“先看空格编号 → 再读段落”的顺序，注意前后句逻辑衔接。\n";
+  if (wrongP7) advice += "📖 Part7：先读问题再读文章，标记日期、数字、人物等信息，减少来回找的时间。\n";
+  if (!advice) advice = "本次表现很好，可以尝试在相同时间内把题量从 20 提到 30，再观察正确率变化。";
+  adviceEl.textContent = advice;
+
+  // 写入历史
+  saveHistory({
+    time: new Date().toLocaleString(),
+    total,
+    correct,
+    accuracy,
+    elapsedSec,
+    avgTime: avg,
+    wrongP5, wrongP6, wrongP7
   });
 
-  html += "</div>";
-
-  document.getElementById("container").innerHTML = html;
-
-  idx++;
+  document.getElementById("resultCard").style.display = "block";
+  renderHistory();
 }
-</script>
 
+/** 在题库中通过 qid 找到题目，主要用于显示解析 */
+function findQuestionById(qid) {
+  if (typeof PART5_QUESTIONS !== "undefined") {
+    for (const q of PART5_QUESTIONS) {
+      if (q.id === qid) return q;
+    }
+  }
+  if (typeof PART6_SETS !== "undefined") {
+    for (const set of PART6_SETS) {
+      for (const q of set.questions) {
+        if (q.id === qid) return q;
+      }
+    }
+  }
+  if (typeof PART7_SETS !== "undefined") {
+    for (const set of PART7_SETS) {
+      for (const q of set.questions) {
+        if (q.id === qid) return q;
+      }
+    }
+  }
+  return null;
+}
+
+// 历史记录
+const HISTORY_KEY = "toeic_trainer_v3_history";
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(entry) {
+  const list = loadHistory();
+  list.unshift(entry);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 50)));
+}
+
+function renderHistory() {
+  const box = document.getElementById("historyBox");
+  const list = loadHistory();
+  if (!list.length) {
+    box.innerHTML = '<div style="color:#9ca3af;">暂无记录。</div>';
+    return;
+  }
+  box.innerHTML = "";
+  list.forEach(item => {
+    const div = document.createElement("div");
+    div.style.borderBottom = "1px dashed #e5e7eb";
+    div.style.padding = "4px 0";
+    div.innerHTML = `
+      <div><strong>${item.time}</strong></div>
+      <div>
+        <span class="pill">题数：${item.total}</span>
+        <span class="pill">正确率：${item.accuracy}%</span>
+        <span class="pill">平均用时：${item.avgTime}s</span>
+      </div>
+      <div style="margin-top:2px;">
+        ${item.wrongP5 ? `<span class="pill">P5 错：${item.wrongP5}</span>` : ""}
+        ${item.wrongP6 ? `<span class="pill">P6 错：${item.wrongP6}</span>` : ""}
+        ${item.wrongP7 ? `<span class="pill">P7 错：${item.wrongP7}</span>` : ""}
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+// 事件绑定
+document.getElementById("startBtn").addEventListener("click", () => {
+  const n = parseInt(document.getElementById("countInput").value, 10) || 20;
+  buildSession(n);
+  renderSession();
+  startTimer();
+});
+
+document.getElementById("submitBtn").addEventListener("click", () => {
+  grade();
+});
+
+document.getElementById("toggleHistory").addEventListener("click", () => {
+  const box = document.getElementById("historyBox");
+  box.style.display = box.style.display === "none" ? "block" : "none";
+});
+
+renderHistory();
+</script>
 </body>
 </html>

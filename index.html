@@ -1,595 +1,117 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>TOEIC 800 Trainer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #222;
-      background: #f5f5f7;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f5f5f7;
-    }
-    .app {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-    h1 {
-      font-size: 1.4rem;
-      margin: 0 0 8px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      margin-right: 4px;
-      background: #e6f0ff;
-      color: #2457c6;
-    }
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-      padding: 12px 14px;
-      margin-bottom: 12px;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    select, input[type="number"] {
-      padding: 6px 8px;
-      border-radius: 999px;
-      border: 1px solid #d0d0e0;
-      font-size: 14px;
-      background: #fff;
-    }
-    button {
-      border-radius: 999px;
-      border: none;
-      padding: 8px 14px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .primary {
-      background: linear-gradient(135deg, #2563eb, #4f46e5);
-      color: #fff;
-    }
-    .secondary {
-      background: #eef1ff;
-      color: #334155;
-    }
-    .question {
-      margin-bottom: 10px;
-    }
-    .q-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-      margin-bottom: 4px;
-    }
-    .q-context-toggle {
-      font-size: 12px;
-      color: #2563eb;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    .q-context {
-      font-size: 13px;
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 8px;
-      margin-bottom: 6px;
-      white-space: pre-wrap;
-      line-height: 1.4;
-    }
-    .options label {
-      display: block;
-      font-size: 14px;
-      padding: 4px 0;
-    }
-    .options input {
-      margin-right: 6px;
-    }
-    .analysis {
-      font-size: 13px;
-      margin-top: 4px;
-      border-top: 1px dashed #e2e8f0;
-      padding-top: 4px;
-    }
-    .analysis.correct { color: #15803d; }
-    .analysis.wrong { color: #b91c1c; }
-    .stats-row {
-      font-size: 13px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 12px;
-      margin-top: 4px;
-    }
-    .stats-row span {
-      white-space: nowrap;
-    }
-    .history-item {
-      font-size: 13px;
-      border-bottom: 1px dashed #e5e7eb;
-      padding: 6px 0;
-    }
-    .pill {
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #f1f5f9;
-      font-size: 11px;
-      margin-right: 4px;
-    }
-    @media (max-width: 600px) {
-      .controls { flex-direction: column; align-items: stretch; }
-      button, select, input[type="number"] { width: 100%; }
-      .q-header { flex-direction: column; align-items: flex-start; gap: 2px; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<title>TOEIC Trainer v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family: sans-serif; padding:20px; background:#fafafa;}
+h1 {font-size:22px;}
+button {padding:10px 20px; margin:10px 0; border-radius:8px; border:none; background:#007bff; color:white; font-size:16px;}
+.section {background:white; padding:15px; border-radius:10px; margin:15px 0; box-shadow:0 0 4px rgba(0,0,0,.1);}
+.choice {margin:8px 0;}
+pre {white-space: pre-wrap; background:#f0f0f0; padding:10px; border-radius:8px;}
+</style>
 </head>
 <body>
-<div class="app">
-  <div class="card">
-    <h1>TOEIC 800 Trainer（自测网页）</h1>
-    <div style="font-size:13px;color:#64748b;margin-bottom:6px;">
-      🎯 目标：冲 <strong>800+</strong> · 根据目前水平（约 700，词汇/速度/语法基础不足，每天约 1 小时）设计  
-      题型参考 TOEIC 真题风格，但题目为自制、非真题原文。
-    </div>
-    <div class="controls">
-      <div>
-        <span class="badge">模式</span>
-        <select id="modeSelect">
-          <option value="mixed">综合训练（所有部分）</option>
-          <option value="grammar">语法・Part5 强化</option>
-          <option value="reading">阅读・Part6 & 7</option>
-          <option value="vocab">词汇巩固</option>
-          <option value="listeningStyle">Listening-style 语感</option>
-        </select>
-      </div>
-      <div>
-        <span class="badge">题量</span>
-        <input id="countInput" type="number" min="3" max="30" value="4" />
-      </div>
-      <button class="primary" id="startBtn">🎯 抽题开始</button>
-      <button class="secondary" id="clearBtn">清空当前作答</button>
-    </div>
-    <div style="font-size:13px;">
-      计时：<span id="timer">00:00</span> · 当前平均每题用时：<span id="avgTime">--</span> 秒
-    </div>
-  </div>
+<h1>TOEIC Trainer v2</h1>
+<p>（听力已移除・按 Part 顺序出题・阅读段落完整呈现）</p>
 
-  <div id="questionsContainer"></div>
+<div id="container"></div>
 
-  <div class="card" id="analysisCard" style="display:none;">
-    <h2 style="font-size:1.1rem;margin:0 0 6px;">本次训练结果</h2>
-    <div id="summaryText" style="font-size:13px;margin-bottom:4px;"></div>
-    <div id="detailStats" class="stats-row"></div>
-    <div id="advice" style="font-size:13px;margin-top:6px;color:#0f172a;"></div>
-  </div>
-
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 style="font-size:1rem;margin:0;">历史记录（保存在本机）</h2>
-      <button class="secondary" id="toggleHistory">显示/隐藏</button>
-    </div>
-    <div id="historyList" style="display:none;margin-top:6px;"></div>
-  </div>
-</div>
+<button onclick="next()">开始训练</button>
 
 <script>
-/**
- * 题库说明：
- * - context: 阅读/通知/对话原文，显示在题目前面，可以折叠
- * - question: 题干
- * - options: 选项
- * - answer: 正确答案字母
- * - part: TOEIC 部分（5 / 6 / 7 / L）
- * - skills: 相关能力标签，用于统计分析
- *   例如 ["Grammar","Vocabulary","Reading","ListeningStyle"]
- */
-
-const QUESTION_BANK = [
+// ======== Dataset（演示数据，可扩展）========
+const dataset = [
+  // ---- Part 5 ----
   {
-    id: 1,
-    part: 7,
-    type: "Reading: Inference",
-    contextTitle: "Notice: Customer-Service Workshop",
-    context: 
-`To: All employees
-
-We will hold a customer-service workshop on Thursday, April 3,
-from 7:00 p.m. to 8:30 p.m. in Training Room 2.
-
-The session is free for all employees. No registration is required.`,
-    question: "What can be inferred about the workshop from the notice?",
-    options: {
-      A: "It is only for new employees.",
-      B: "It will be held after business hours.",
-      C: "Participants must register in advance.",
-      D: "It is free for the general public."
-    },
-    answer: "B",
-    explanation: "时间 7:00 p.m.–8:30 p.m.，在正常下班时间之后 ⇒ after business hours。A：没有只限新员工；C：文中说 no registration is required；D：free for all employees，并非向公众开放。",
-    skills: ["Reading","Inference","Vocabulary"]
-  },
-  {
-    id: 2,
-    part: "L",
-    type: "Listening-style: Intonation / Attitude",
-    contextTitle: "Spoken line",
-    context: `A man says to his coworker: 
-"Well, that's one way to look at it."`,
-    question: "How does the man probably feel when he says, “Well, that’s one way to look at it”?",
-    options: {
-      A: "He completely agrees.",
-      B: "He politely disagrees.",
-      C: "He is confused.",
-      D: "He is very angry."
-    },
-    answer: "B",
-    explanation: "英语口语中 “Well, that’s one way to look at it.” 通常是「委婉不同意」的态度，语气较软，不是完全同意也不是愤怒。",
-    skills: ["ListeningStyle","Pragmatics"]
-  },
-  {
-    id: 3,
     part: 5,
-    type: "Grammar: Part 5",
-    context: "",
-    question: "The new product launch has been ______ until the marketing team finishes the survey.",
-    options: {
-      A: "postponed",
-      B: "postponing",
-      C: "postpone",
-      D: "to postponing"
-    },
-    answer: "A",
-    explanation: "动词短语 “has been + 过去分词” ⇒ has been postponed（被动语态）。",
-    skills: ["Grammar"]
+    type: "Grammar",
+    questions: [
+      {
+        q: "The manager ______ the new policy next Monday.",
+        options: ["announce", "announced", "will announce", "announcing"],
+        answer: 2
+      }
+    ]
   },
+
+  // ---- Part 6 ----
   {
-    id: 4,
     part: 6,
-    type: "Reading: Part 6 文段填空",
-    contextTitle: "E-mail from HR",
-    context:
-`Dear staff,
+    type: "Text Completion",
+    passage: "Our company is pleased to announce the opening of a new branch office. _____. We look forward to serving our customers better.",
+    questions: [
+      {
+        q: "Which sentence best completes the text?",
+        options: [
+          "The construction was delayed.",
+          "It will begin operations next month.",
+          "Employees must register immediately.",
+          "The office will close today."
+        ],
+        answer: 1
+      }
+    ]
+  },
 
-As part of our wellness program, we will introduce flexible starting times next month.
-You may arrive between 8:00 and 10:00 a.m., as long as you work eight hours a day.
-This change is intended to help employees avoid rush-hour traffic and reduce stress.
-
-If you have any questions, please contact the HR office.
-
-Best regards,
-Human Resources`,
-    question: "This change is intended to help employees avoid ______ traffic and reduce stress.",
-    options: {
-      A: "occasional",
-      B: "rush-hour",
-      C: "temporary",
-      D: "light"
-    },
-    answer: "B",
-    explanation: "根据语境：弹性上班时间的目的就是避免高峰期交通 ⇒ rush-hour traffic。",
-    skills: ["Reading","Vocabulary","Collocation"]
+  // ---- Part 7 ----
+  {
+    part: 7,
+    type: "Reading (Single Passage)",
+    passage: "NOTICE:\nA workshop on effective communication will be held next Thursday at 3 PM in Meeting Room B. Registration is required.",
+    questions: [
+      {
+        q: "What can be inferred about the workshop?",
+        options: [
+          "It is only for new employees.",
+          "It will be held after business hours.",
+          "Participants must register in advance.",
+          "It is free for the general public."
+        ],
+        answer: 2
+      },
+      {
+        q: "What time will the workshop begin?",
+        options: ["2 PM", "3 PM", "4 PM", "5 PM"],
+        answer: 1
+      }
+    ]
   }
 ];
 
-// ========== 状态 ==========
-let currentQuestions = [];
-let userAnswers = {};
-let timerInterval = null;
-let startTime = null;
+let idx = 0;
 
-// ========== 工具函数 ==========
-function shuffle(array) {
-  const arr = array.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function pickQuestions(mode, count) {
-  let pool = QUESTION_BANK;
-  if (mode === "grammar") {
-    pool = QUESTION_BANK.filter(q => q.part === 5);
-  } else if (mode === "reading") {
-    pool = QUESTION_BANK.filter(q => q.part === 6 || q.part === 7);
-  } else if (mode === "vocab") {
-    pool = QUESTION_BANK.filter(q => q.skills.includes("Vocabulary"));
-  } else if (mode === "listeningStyle") {
-    pool = QUESTION_BANK.filter(q => q.part === "L");
-  }
-  if (pool.length === 0) return [];
-  return shuffle(pool).slice(0, Math.min(count, pool.length));
-}
-
-// ========== 渲染题目 ==========
-function renderQuestions() {
-  const container = document.getElementById("questionsContainer");
-  container.innerHTML = "";
-  document.getElementById("analysisCard").style.display = "none";
-
-  currentQuestions.forEach((q, idx) => {
-    const card = document.createElement("div");
-    card.className = "card question";
-
-    const header = document.createElement("div");
-    header.className = "q-header";
-    header.innerHTML = `
-      <div>
-        <span class="badge">#${idx + 1} · Part${q.part}</span>
-        <span style="font-size:12px;color:#64748b;">${q.type}</span>
-      </div>
-      ${q.context ? '<span class="q-context-toggle" data-qid="'+q.id+'">显示/隐藏题干</span>' : ""}
-    `;
-    card.appendChild(header);
-
-    if (q.context) {
-      const ctx = document.createElement("div");
-      ctx.className = "q-context";
-      ctx.dataset.qid = q.id;
-      ctx.textContent = q.context;
-      card.appendChild(ctx);
-    }
-
-    const qText = document.createElement("div");
-    qText.style.fontSize = "14px";
-    qText.style.margin = "4px 0 6px";
-    qText.textContent = q.question;
-    card.appendChild(qText);
-
-    const opts = document.createElement("div");
-    opts.className = "options";
-    for (const key of ["A","B","C","D"]) {
-      if (!q.options[key]) continue;
-      const label = document.createElement("label");
-      label.innerHTML = `
-        <input type="radio" name="q_${q.id}" value="${key}">
-        (${key}) ${q.options[key]}
-      `;
-      opts.appendChild(label);
-    }
-    card.appendChild(opts);
-
-    const analysis = document.createElement("div");
-    analysis.id = "analysis_" + q.id;
-    analysis.className = "analysis";
-    analysis.style.display = "none";
-    card.appendChild(analysis);
-
-    container.appendChild(card);
-  });
-
-  // 绑定 context toggle
-  container.addEventListener("click", function handler(e) {
-    const toggle = e.target.closest(".q-context-toggle");
-    if (toggle) {
-      const qid = toggle.dataset.qid;
-      const ctx = container.querySelector('.q-context[data-qid="'+qid+'"]');
-      if (ctx) {
-        ctx.style.display = ctx.style.display === "none" ? "block" : "none";
-      }
-    }
-  }, { once: true });
-}
-
-// ========== 计时 ==========
-function startTimer() {
-  startTime = Date.now();
-  const timerEl = document.getElementById("timer");
-  const avgEl = document.getElementById("avgTime");
-  timerEl.textContent = "00:00";
-  avgEl.textContent = "--";
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
-    const s = String(elapsed % 60).padStart(2, "0");
-    timerEl.textContent = `${m}:${s}`;
-    if (currentQuestions.length > 0) {
-      avgEl.textContent = (elapsed / currentQuestions.length).toFixed(1);
-    }
-  }, 1000);
-}
-
-// ========== 评分与分析 ==========
-function grade() {
-  if (!currentQuestions.length) return;
-
-  const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
-  if (timerInterval) clearInterval(timerInterval);
-
-  let correct = 0;
-  let grammarWrong = 0, readingWrong = 0, vocabWrong = 0, listeningWrong = 0;
-
-  currentQuestions.forEach(q => {
-    const chosen = document.querySelector(`input[name="q_${q.id}"]:checked`);
-    const ans = chosen ? chosen.value : null;
-    const analysis = document.getElementById("analysis_" + q.id);
-    if (!analysis) return;
-    analysis.style.display = "block";
-    if (ans === q.answer) {
-      correct++;
-      analysis.className = "analysis correct";
-      analysis.textContent = `✔ 正确。解析：${q.explanation}`;
-    } else {
-      analysis.className = "analysis wrong";
-      analysis.textContent = `✘ 错误。你的答案：${ans || "未作答"}；正确答案：${q.answer}。解析：${q.explanation}`;
-      if (q.skills.includes("Grammar")) grammarWrong++;
-      if (q.skills.includes("Reading")) readingWrong++;
-      if (q.skills.includes("Vocabulary")) vocabWrong++;
-      if (q.skills.includes("ListeningStyle")) listeningWrong++;
-    }
-  });
-
-  const total = currentQuestions.length;
-  const accuracy = (correct / total * 100).toFixed(1);
-  const avgTime = (elapsedSec / total).toFixed(1);
-
-  document.getElementById("timer").textContent =
-    `${String(Math.floor(elapsedSec / 60)).padStart(2,"0")}:${String(elapsedSec % 60).padStart(2,"0")}`;
-  document.getElementById("avgTime").textContent = avgTime;
-
-  const summaryEl = document.getElementById("summaryText");
-  summaryEl.textContent = `共 ${total} 题，答对 ${correct} 题，正确率 ${accuracy}% 。总用时 ${elapsedSec} 秒，平均每题 ${avgTime} 秒。`;
-
-  const statsEl = document.getElementById("detailStats");
-  statsEl.innerHTML = "";
-  if (grammarWrong + readingWrong + vocabWrong + listeningWrong === 0) {
-    statsEl.textContent = "本次所有题都做对了，继续保持，可以适当增加题量或提高速度。";
-  } else {
-    if (grammarWrong) statsEl.innerHTML += `<span>语法错题：${grammarWrong}</span>`;
-    if (readingWrong) statsEl.innerHTML += `<span>阅读错题：${readingWrong}</span>`;
-    if (vocabWrong) statsEl.innerHTML += `<span>词汇/搭配错题：${vocabWrong}</span>`;
-    if (listeningWrong) statsEl.innerHTML += `<span>Listening-style 语感错题：${listeningWrong}</span>`;
-  }
-
-  // 建议
-  const adviceEl = document.getElementById("advice");
-  let advice = "";
-  if (readingWrong > 0) {
-    advice += "📚 阅读：建议每天至少做 1 小段 Part6/7，先看题干→再读文章，练习快速抓关键信息。\n";
-  }
-  if (grammarWrong > 0) {
-    advice += "📐 语法：把本次错题的句子抄下来，按时态/句型分类复习，同类结构再做 3～5 题。\n";
-  }
-  if (vocabWrong > 0) {
-    advice += "🧠 词汇：把错词加入你自己的单词本，连同例句一起记，第二天+一周后再复习一次。\n";
-  }
-  if (listeningWrong > 0) {
-    advice += "🎧 语感：多听带感情的原声材料（访谈/对话），注意语气和真实意思的差别。\n";
-  }
-  if (!advice) {
-    advice = "本次表现很好，可以逐步把题量加到 8～10 题一组，并开始计时模拟小 Section。";
-  }
-  adviceEl.textContent = advice;
-
-  // 记录历史
-  saveHistory({
-    time: new Date().toLocaleString(),
-    mode: document.getElementById("modeSelect").value,
-    total,
-    correct,
-    accuracy,
-    elapsedSec,
-    avgTime,
-    grammarWrong,
-    readingWrong,
-    vocabWrong,
-    listeningWrong
-  });
-
-  document.getElementById("analysisCard").style.display = "block";
-  renderHistory();
-}
-
-// ========== 历史记录 ==========
-const HISTORY_KEY = "toeic_800_trainer_history_v1";
-
-function loadHistory() {
-  try {
-    const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveHistory(entry) {
-  const list = loadHistory();
-  list.unshift(entry);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 50)));
-}
-
-function renderHistory() {
-  const list = loadHistory();
-  const box = document.getElementById("historyList");
-  if (!list.length) {
-    box.innerHTML = '<div style="font-size:13px;color:#94a3b8;">暂无记录。完成一次训练后会显示在这里。</div>';
+// ======== Display Next Part ========
+function next() {
+  if (idx >= dataset.length) {
+    document.getElementById("container").innerHTML = "<h2>🎉 训练完成！</h2>";
     return;
   }
-  box.innerHTML = "";
-  list.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "history-item";
-    div.innerHTML = `
-      <div><strong>${item.time}</strong></div>
-      <div>
-        <span class="pill">模式：${item.mode}</span>
-        <span class="pill">题数：${item.total}</span>
-        <span class="pill">正确率：${item.accuracy}%</span>
-        <span class="pill">平均用时：${item.avgTime}s</span>
-      </div>
-      <div style="margin-top:2px;">
-        ${item.grammarWrong ? `<span class="pill">语法错：${item.grammarWrong}</span>` : ""}
-        ${item.readingWrong ? `<span class="pill">阅读错：${item.readingWrong}</span>` : ""}
-        ${item.vocabWrong ? `<span class="pill">词汇错：${item.vocabWrong}</span>` : ""}
-        ${item.listeningWrong ? `<span class="pill">听力语感错：${item.listeningWrong}</span>` : ""}
-      </div>
-    `;
-    box.appendChild(div);
+
+  const item = dataset[idx];
+
+  let html = `<div class='section'><h2>Part ${item.part} · ${item.type}</h2>`;
+
+  if (item.passage) {
+    html += `<pre>${item.passage}</pre>`;
+  }
+
+  item.questions.forEach((q, i) => {
+    html += `<p>${q.q}</p>`;
+    q.options.forEach((op, j) => {
+      html += `<div class='choice'><label><input type='radio' name='q${i}'> ${op}</label></div>`;
+    });
   });
+
+  html += "</div>";
+
+  document.getElementById("container").innerHTML = html;
+
+  idx++;
 }
-
-// ========== 事件绑定 ==========
-document.getElementById("startBtn").addEventListener("click", () => {
-  const mode = document.getElementById("modeSelect").value;
-  const count = parseInt(document.getElementById("countInput").value, 10) || 4;
-  currentQuestions = pickQuestions(mode, count);
-  if (!currentQuestions.length) {
-    alert("当前模式下题库为空。可以先使用“综合训练”模式。");
-    return;
-  }
-  userAnswers = {};
-  renderQuestions();
-  startTimer();
-});
-
-document.getElementById("clearBtn").addEventListener("click", () => {
-  if (!currentQuestions.length) return;
-  currentQuestions.forEach(q => {
-    const checked = document.querySelector(`input[name="q_${q.id}"]:checked`);
-    if (checked) checked.checked = false;
-    const aDiv = document.getElementById("analysis_" + q.id);
-    if (aDiv) aDiv.style.display = "none";
-  });
-  document.getElementById("analysisCard").style.display = "none";
-});
-
-document.getElementById("questionsContainer").addEventListener("change", (e) => {
-  if (e.target.name && e.target.name.startsWith("q_")) {
-    // 自动评分：所有题都作答后自动结算
-    const allAnswered = currentQuestions.every(q =>
-      document.querySelector(`input[name="q_${q.id}"]:checked`)
-    );
-    if (allAnswered) {
-      grade();
-    }
-  }
-});
-
-document.getElementById("toggleHistory").addEventListener("click", () => {
-  const box = document.getElementById("historyList");
-  box.style.display = box.style.display === "none" ? "block" : "none";
-});
-
-// 初始渲染历史
-renderHistory();
 </script>
+
 </body>
 </html>

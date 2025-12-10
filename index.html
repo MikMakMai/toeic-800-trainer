@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <title>TOEIC 800 Trainer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -13,1041 +13,583 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(180deg, #f5f5f7 0%, #e3ecff 60%, #f5f5f7 100%);
+      background: #f5f5f7;
     }
     .app {
-      max-width: 1100px;
-      margin: 24px auto;
+      max-width: 900px;
+      margin: 0 auto;
       padding: 16px;
     }
     h1 {
-      margin-top: 0;
-      font-size: 1.6rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      font-size: 1.4rem;
+      margin: 0 0 8px;
     }
-    h1 span.badge {
-      background: #2563eb;
-      color: #fff;
-      font-size: 0.8rem;
+    .badge {
+      display: inline-block;
       padding: 2px 8px;
       border-radius: 999px;
-    }
-    .subbadge {
-      font-size: 0.78rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #f97316;
-      color: #fff;
-      margin-left: 4px;
-    }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
-      gap: 16px;
-    }
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+      font-size: 12px;
+      margin-right: 4px;
+      background: #e6f0ff;
+      color: #2457c6;
     }
     .card {
-      background: rgba(255, 255, 255, 0.94);
-      border-radius: 14px;
-      padding: 14px 16px;
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      padding: 12px 14px;
+      margin-bottom: 12px;
     }
-    .card-header {
+    .controls {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 8px;
-    }
-    .card-header h2 {
-      font-size: 1rem;
-      margin: 0;
-    }
-    .card-header small {
-      opacity: 0.7;
-      font-size: 0.78rem;
-    }
-    label {
-      font-size: 0.9rem;
-      display: block;
-      margin-bottom: 6px;
-    }
-    input[type="number"],
-    select {
-      width: 100%;
-      padding: 6px 8px;
-      border-radius: 8px;
-      border: 1px solid #cbd5f5;
-      font-size: 0.9rem;
-      box-sizing: border-box;
-      background: #f9fafb;
-    }
-    select[multiple] {
-      height: 84px;
-    }
-    .btn {
-      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 0.9rem;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease;
-      white-space: nowrap;
+      margin-bottom: 10px;
     }
-    .btn-primary {
+    select, input[type="number"] {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid #d0d0e0;
+      font-size: 14px;
+      background: #fff;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .primary {
       background: linear-gradient(135deg, #2563eb, #4f46e5);
       color: #fff;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.38);
     }
-    .btn-primary:disabled {
-      opacity: 0.6;
-      cursor: default;
-      box-shadow: none;
+    .secondary {
+      background: #eef1ff;
+      color: #334155;
     }
-    .btn-secondary {
-      background: #e5e7eb;
+    .question {
+      margin-bottom: 10px;
     }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid #e5e7eb;
-    }
-    .btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
-    }
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .controls-right {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: flex-end;
-    }
-    .questions {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 8px;
-      max-height: 70vh;
-      overflow: auto;
-      padding-right: 4px;
-    }
-    .question-card {
-      border-radius: 12px;
-      padding: 10px 12px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-    }
-    .question-header {
+    .q-header {
       display: flex;
       justify-content: space-between;
-      gap: 6px;
-      font-size: 0.8rem;
+      align-items: center;
+      font-size: 13px;
       margin-bottom: 4px;
-      color: #6b7280;
     }
-    .question-text {
-      font-size: 0.92rem;
-      margin-bottom: 6px;
-    }
-    .choices {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 0.88rem;
-    }
-    .choices label {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-      margin: 0;
-      padding: 2px 4px;
-      border-radius: 8px;
+    .q-context-toggle {
+      font-size: 12px;
+      color: #2563eb;
+      text-decoration: underline;
       cursor: pointer;
     }
-    .choices input[type="radio"] {
-      margin-top: 2px;
-    }
-    .explanation {
-      margin-top: 4px;
-      font-size: 0.8rem;
-      display: none;
-      padding: 6px 8px;
-      border-radius: 6px;
-      background: #eef2ff;
-    }
-    .explanation.correct {
-      border-left: 2px solid #16a34a;
-    }
-    .explanation.incorrect {
-      border-left: 2px solid #dc2626;
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 1px 6px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      background: #e0f2fe;
-      color: #0369a1;
-    }
-    .summary-line {
-      font-size: 0.86rem;
-      margin: 3px 0;
-    }
-    .summary-line strong {
-      font-weight: 600;
-    }
-    .summary-highlight {
-      margin-top: 4px;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: #fef3c7;
-      font-size: 0.82rem;
-    }
-    .mini {
-      font-size: 0.76rem;
-      opacity: 0.8;
-    }
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-    .history-table th,
-    .history-table td {
-      padding: 4px 6px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-    }
-    .history-table th {
-      font-weight: 600;
-      background: #f1f5f9;
-    }
-    .history-table tr:hover {
+    .q-context {
+      font-size: 13px;
       background: #f9fafb;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 6px;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+    .options label {
+      display: block;
+      font-size: 14px;
+      padding: 4px 0;
+    }
+    .options input {
+      margin-right: 6px;
+    }
+    .analysis {
+      font-size: 13px;
+      margin-top: 4px;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 4px;
+    }
+    .analysis.correct { color: #15803d; }
+    .analysis.wrong { color: #b91c1c; }
+    .stats-row {
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-top: 4px;
+    }
+    .stats-row span {
+      white-space: nowrap;
+    }
+    .history-item {
+      font-size: 13px;
+      border-bottom: 1px dashed #e5e7eb;
+      padding: 6px 0;
     }
     .pill {
-      font-size: 0.72rem;
-      padding: 1px 6px;
+      padding: 2px 8px;
       border-radius: 999px;
-      background: #e5e7eb;
+      background: #f1f5f9;
+      font-size: 11px;
+      margin-right: 4px;
     }
-    .score-good {
-      color: #15803d;
-      font-weight: 600;
-    }
-    .score-mid {
-      color: #ca8a04;
-      font-weight: 600;
-    }
-    .score-bad {
-      color: #b91c1c;
-      font-weight: 600;
-    }
-    .timer {
-      font-size: 0.8rem;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: #eef2ff;
-      color: #1d4ed8;
-    }
-    .mode-select {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-    .mode-select select {
-      max-width: 240px;
+    @media (max-width: 600px) {
+      .controls { flex-direction: column; align-items: stretch; }
+      button, select, input[type="number"] { width: 100%; }
+      .q-header { flex-direction: column; align-items: flex-start; gap: 2px; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1>
-      TOEIC 800 Trainer
-      <span>
-        <span class="badge">Local · Offline</span>
-        <span class="subbadge">Target: 800+</span>
-      </span>
-    </h1>
-
-    <div class="layout">
-      <!-- 左：出题 & 作答区 -->
-      <div class="card">
-        <div class="card-header">
-          <h2>出题 · 做题</h2>
-          <small>真题风格 · 语法 / 词汇 / 阅读速度训练</small>
-        </div>
-
-        <div>
-          <div class="mode-select">
-            <label for="modeSelect" style="margin-bottom:0;">训练模式：</label>
-            <select id="modeSelect">
-              <option value="mixed">综合训练（推荐）</option>
-              <option value="grammar">语法 · Part 5 强化</option>
-              <option value="reading">阅读 · Part 7 强化</option>
-              <option value="listening">听力风格 · 语感强化</option>
-            </select>
-          </div>
-
-          <label>
-            本次题目数量（1–20 推荐）
-            <input id="numQuestions" type="number" min="1" max="50" value="10" />
-          </label>
-
-          <label>
-            自定义 TOEIC 部分（可选，默认根据训练模式自动选择）
-            <select id="partsSelect" multiple>
-              <option value="Part5">Part 5 - Incomplete Sentences</option>
-              <option value="Part6">Part 6 - Text Completion</option>
-              <option value="Part7">Part 7 - Reading Comprehension</option>
-              <option value="Listening">Listening-style (Vocabulary / Grammar)</option>
-            </select>
-          </label>
-
-          <div class="controls-row">
-            <div class="mini">
-              计时：<span id="timerDisplay">00:00</span> ·
-              当前平均每题用时：<span id="avgTimeDisplay">-- 秒</span>
-            </div>
-            <div class="controls-right">
-              <button class="btn btn-ghost" id="btnShowAllExp" type="button">
-                显示/隐藏全部解析
-              </button>
-              <button class="btn btn-secondary" id="btnResetCurrent" type="button">
-                清空当前作答
-              </button>
-              <button class="btn btn-primary" id="btnStart" type="button">
-                🎯 抽题开始
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div id="questionsContainer" class="questions"></div>
-
-        <div class="controls-row" style="margin-top: 10px; justify-content:flex-end;">
-          <button class="btn btn-primary" id="btnSubmit" type="button">
-            ✅ 提交并分析
-          </button>
-        </div>
+<div class="app">
+  <div class="card">
+    <h1>TOEIC 800 Trainer（自测网页）</h1>
+    <div style="font-size:13px;color:#64748b;margin-bottom:6px;">
+      🎯 目标：冲 <strong>800+</strong> · 根据目前水平（约 700，词汇/速度/语法基础不足，每天约 1 小时）设计  
+      题型参考 TOEIC 真题风格，但题目为自制、非真题原文。
+    </div>
+    <div class="controls">
+      <div>
+        <span class="badge">模式</span>
+        <select id="modeSelect">
+          <option value="mixed">综合训练（所有部分）</option>
+          <option value="grammar">语法・Part5 强化</option>
+          <option value="reading">阅读・Part6 & 7</option>
+          <option value="vocab">词汇巩固</option>
+          <option value="listeningStyle">Listening-style 语感</option>
+        </select>
       </div>
-
-      <!-- 右：分析 & 记录区 -->
-      <div class="card">
-        <div class="card-header">
-          <h2>分析 · 记录</h2>
-          <small>按语法 / 词汇 / 阅读速度定位薄弱点</small>
-        </div>
-
-        <div id="summaryBox">
-          <p class="summary-line">
-            还没有结果。先在左侧 <strong>选择训练模式</strong>，点击
-            <strong>“抽题开始”</strong>，做完题后再点击
-            <strong>“提交并分析”</strong>。
-          </p>
-          <p class="mini">
-            提示：目标 800+ 时，整体正确率建议 ≥ 80%，平均每题用时 ≤ 45 秒。
-          </p>
-        </div>
-
-        <hr style="margin: 10px 0; border: none; border-top: 1px dashed #e5e7eb;" />
-
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px;">
-          <strong style="font-size: 0.9rem;">历史记录（本机保存）</strong>
-          <button class="btn btn-ghost" id="btnClearHistory" type="button" style="font-size: 0.78rem; padding: 4px 10px;">
-            🧹 清空历史
-          </button>
-        </div>
-        <div id="historyBox"></div>
+      <div>
+        <span class="badge">题量</span>
+        <input id="countInput" type="number" min="3" max="30" value="4" />
       </div>
+      <button class="primary" id="startBtn">🎯 抽题开始</button>
+      <button class="secondary" id="clearBtn">清空当前作答</button>
+    </div>
+    <div style="font-size:13px;">
+      计时：<span id="timer">00:00</span> · 当前平均每题用时：<span id="avgTime">--</span> 秒
     </div>
   </div>
 
-  <script>
-    // ===== 示例真题风格题库（可在浏览器开发者工具中手动扩展） =====
-    // 这里只放少量示例，用于结构说明与训练逻辑。
-    const QUESTION_BANK = [
-      {
-        id: 1,
-        part: "Part5",
-        skill: "Grammar: Tense / Passive",
-        focus: "grammar",
-        question: "The report ______ by the time the manager arrives tomorrow.",
-        choices: ["will finish", "will have been finished", "was finished", "has finished"],
-        correctIndex: 1,
-        explanation:
-          "\"by the time + 将来时间\" 常用将来完成时；这里 report 是被动，所以用 future perfect passive：will have been finished."
-      },
-      {
-        id: 2,
-        part: "Part5",
-        skill: "Vocabulary: Preposition",
-        focus: "vocabulary",
-        question: "The new policy will go ______ effect next Monday.",
-        choices: ["in", "on", "into", "for"],
-        correctIndex: 2,
-        explanation: "固定搭配：go into effect 表示“开始生效”。"
-      },
-      {
-        id: 3,
-        part: "Part5",
-        skill: "Grammar: Conjunction",
-        focus: "grammar",
-        question:
-          "Employees must submit their travel receipts ______ they can be reimbursed.",
-        choices: ["so that", "because of", "despite", "instead of"],
-        correctIndex: 0,
-        explanation: "so that + 句子 表示“以便……”。后面是完整句子 they can be reimbursed。"
-      },
-      {
-        id: 4,
-        part: "Part6",
-        skill: "Reading: Coherence",
-        focus: "reading",
-        question:
-          "All staff are reminded to keep the reception area clean. ______, please avoid leaving personal items on the front desk.",
-        choices: ["However", "For example", "In addition", "Therefore"],
-        correctIndex: 2,
-        explanation:
-          "前文是提醒保持干净，后面是补充具体要求，“此外”最自然：In addition."
-      },
-      {
-        id: 5,
-        part: "Part7",
-        skill: "Reading: Detail Question",
-        focus: "reading",
-        question:
-          "According to the email, why is the meeting rescheduled to Friday?",
-        choices: [
-          "The conference room is not available.",
-          "The manager will be out of town on Thursday.",
-          "The report is not finished yet.",
-          "The clients requested a different time."
-        ],
-        correctIndex: 1,
-        explanation:
-          "根据设定：因为经理周四不在公司，所以改到周五。真实使用时你可以根据自己阅读材料改写题干。"
-      },
-      {
-        id: 6,
-        part: "Listening",
-        skill: "Listening-style: Short Conversation",
-        focus: "listening",
-        question:
-          "What does the woman mean when she says, “I wish you had told me earlier”?",
-        choices: [
-          "She is happy she knew it in advance.",
-          "She is upset because she did not know it earlier.",
-          "She wants the man to repeat the information.",
-          "She already knew about it."
-        ],
-        correctIndex: 1,
-        explanation:
-          "虚拟语气 I wish you had told me earlier 通常表示“早知道就好了”，暗含不满或遗憾。"
-      },
-      {
-        id: 7,
-        part: "Part5",
-        skill: "Vocabulary: Collocation",
-        focus: "vocabulary",
-        question:
-          "The company offers a wide ______ of training programs for new employees.",
-        choices: ["number", "range", "amount", "piece"],
-        correctIndex: 1,
-        explanation: "固定搭配：a wide range of + 可数名词复数。"
-      },
-      {
-        id: 8,
-        part: "Part6",
-        skill: "Grammar: Article / Reference",
-        focus: "grammar",
-        question:
-          "Please sign ______ agreement and return it to the human resources office by Friday.",
-        choices: ["a", "an", "the", "no article"],
-        correctIndex: 2,
-        explanation:
-          "说的是双方都知道的“那份协议”，用 the。句中又出现 it 回指 agreement。"
-      },
-      {
-        id: 9,
-        part: "Part7",
-        skill: "Reading: Inference",
-        focus: "reading",
-        question:
-          "What can be inferred about the workshop from the notice?",
-        choices: [
-          "It is only for new employees.",
-          "It will be held after business hours.",
-          "Participants must register in advance.",
-          "It is free for the general public."
-        ],
-        correctIndex: 2,
-        explanation:
-          "根据设定：公告中提到 “Space is limited. Please register online by July 10.” → 可推断需要事先报名。"
-      },
-      {
-        id: 10,
-        part: "Listening",
-        skill: "Listening-style: Intonation / Attitude",
-        focus: "listening",
-        question:
-          "How does the man probably feel when he says, “Well, that’s one way to look at it”?",
-        choices: [
-          "He completely agrees.",
-          "He politely disagrees.",
-          "He is confused.",
-          "He is excited."
-        ],
-        correctIndex: 1,
-        explanation:
-          "表达方式 Well, that’s one way to look at it. 常用来委婉表达不同意见，属于礼貌性不同意。"
-      }
-    ];
+  <div id="questionsContainer"></div>
 
-    // ===== 工具函数 =====
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
+  <div class="card" id="analysisCard" style="display:none;">
+    <h2 style="font-size:1.1rem;margin:0 0 6px;">本次训练结果</h2>
+    <div id="summaryText" style="font-size:13px;margin-bottom:4px;"></div>
+    <div id="detailStats" class="stats-row"></div>
+    <div id="advice" style="font-size:13px;margin-top:6px;color:#0f172a;"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="font-size:1rem;margin:0;">历史记录（保存在本机）</h2>
+      <button class="secondary" id="toggleHistory">显示/隐藏</button>
+    </div>
+    <div id="historyList" style="display:none;margin-top:6px;"></div>
+  </div>
+</div>
+
+<script>
+/**
+ * 题库说明：
+ * - context: 阅读/通知/对话原文，显示在题目前面，可以折叠
+ * - question: 题干
+ * - options: 选项
+ * - answer: 正确答案字母
+ * - part: TOEIC 部分（5 / 6 / 7 / L）
+ * - skills: 相关能力标签，用于统计分析
+ *   例如 ["Grammar","Vocabulary","Reading","ListeningStyle"]
+ */
+
+const QUESTION_BANK = [
+  {
+    id: 1,
+    part: 7,
+    type: "Reading: Inference",
+    contextTitle: "Notice: Customer-Service Workshop",
+    context: 
+`To: All employees
+
+We will hold a customer-service workshop on Thursday, April 3,
+from 7:00 p.m. to 8:30 p.m. in Training Room 2.
+
+The session is free for all employees. No registration is required.`,
+    question: "What can be inferred about the workshop from the notice?",
+    options: {
+      A: "It is only for new employees.",
+      B: "It will be held after business hours.",
+      C: "Participants must register in advance.",
+      D: "It is free for the general public."
+    },
+    answer: "B",
+    explanation: "时间 7:00 p.m.–8:30 p.m.，在正常下班时间之后 ⇒ after business hours。A：没有只限新员工；C：文中说 no registration is required；D：free for all employees，并非向公众开放。",
+    skills: ["Reading","Inference","Vocabulary"]
+  },
+  {
+    id: 2,
+    part: "L",
+    type: "Listening-style: Intonation / Attitude",
+    contextTitle: "Spoken line",
+    context: `A man says to his coworker: 
+"Well, that's one way to look at it."`,
+    question: "How does the man probably feel when he says, “Well, that’s one way to look at it”?",
+    options: {
+      A: "He completely agrees.",
+      B: "He politely disagrees.",
+      C: "He is confused.",
+      D: "He is very angry."
+    },
+    answer: "B",
+    explanation: "英语口语中 “Well, that’s one way to look at it.” 通常是「委婉不同意」的态度，语气较软，不是完全同意也不是愤怒。",
+    skills: ["ListeningStyle","Pragmatics"]
+  },
+  {
+    id: 3,
+    part: 5,
+    type: "Grammar: Part 5",
+    context: "",
+    question: "The new product launch has been ______ until the marketing team finishes the survey.",
+    options: {
+      A: "postponed",
+      B: "postponing",
+      C: "postpone",
+      D: "to postponing"
+    },
+    answer: "A",
+    explanation: "动词短语 “has been + 过去分词” ⇒ has been postponed（被动语态）。",
+    skills: ["Grammar"]
+  },
+  {
+    id: 4,
+    part: 6,
+    type: "Reading: Part 6 文段填空",
+    contextTitle: "E-mail from HR",
+    context:
+`Dear staff,
+
+As part of our wellness program, we will introduce flexible starting times next month.
+You may arrive between 8:00 and 10:00 a.m., as long as you work eight hours a day.
+This change is intended to help employees avoid rush-hour traffic and reduce stress.
+
+If you have any questions, please contact the HR office.
+
+Best regards,
+Human Resources`,
+    question: "This change is intended to help employees avoid ______ traffic and reduce stress.",
+    options: {
+      A: "occasional",
+      B: "rush-hour",
+      C: "temporary",
+      D: "light"
+    },
+    answer: "B",
+    explanation: "根据语境：弹性上班时间的目的就是避免高峰期交通 ⇒ rush-hour traffic。",
+    skills: ["Reading","Vocabulary","Collocation"]
+  }
+];
+
+// ========== 状态 ==========
+let currentQuestions = [];
+let userAnswers = {};
+let timerInterval = null;
+let startTime = null;
+
+// ========== 工具函数 ==========
+function shuffle(array) {
+  const arr = array.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function pickQuestions(mode, count) {
+  let pool = QUESTION_BANK;
+  if (mode === "grammar") {
+    pool = QUESTION_BANK.filter(q => q.part === 5);
+  } else if (mode === "reading") {
+    pool = QUESTION_BANK.filter(q => q.part === 6 || q.part === 7);
+  } else if (mode === "vocab") {
+    pool = QUESTION_BANK.filter(q => q.skills.includes("Vocabulary"));
+  } else if (mode === "listeningStyle") {
+    pool = QUESTION_BANK.filter(q => q.part === "L");
+  }
+  if (pool.length === 0) return [];
+  return shuffle(pool).slice(0, Math.min(count, pool.length));
+}
+
+// ========== 渲染题目 ==========
+function renderQuestions() {
+  const container = document.getElementById("questionsContainer");
+  container.innerHTML = "";
+  document.getElementById("analysisCard").style.display = "none";
+
+  currentQuestions.forEach((q, idx) => {
+    const card = document.createElement("div");
+    card.className = "card question";
+
+    const header = document.createElement("div");
+    header.className = "q-header";
+    header.innerHTML = `
+      <div>
+        <span class="badge">#${idx + 1} · Part${q.part}</span>
+        <span style="font-size:12px;color:#64748b;">${q.type}</span>
+      </div>
+      ${q.context ? '<span class="q-context-toggle" data-qid="'+q.id+'">显示/隐藏题干</span>' : ""}
+    `;
+    card.appendChild(header);
+
+    if (q.context) {
+      const ctx = document.createElement("div");
+      ctx.className = "q-context";
+      ctx.dataset.qid = q.id;
+      ctx.textContent = q.context;
+      card.appendChild(ctx);
     }
 
-    function formatDateTime(dt) {
-      return (
-        dt.getFullYear() +
-        "-" +
-        String(dt.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(dt.getDate()).padStart(2, "0") +
-        " " +
-        String(dt.getHours()).padStart(2, "0") +
-        ":" +
-        String(dt.getMinutes()).padStart(2, "0")
-      );
+    const qText = document.createElement("div");
+    qText.style.fontSize = "14px";
+    qText.style.margin = "4px 0 6px";
+    qText.textContent = q.question;
+    card.appendChild(qText);
+
+    const opts = document.createElement("div");
+    opts.className = "options";
+    for (const key of ["A","B","C","D"]) {
+      if (!q.options[key]) continue;
+      const label = document.createElement("label");
+      label.innerHTML = `
+        <input type="radio" name="q_${q.id}" value="${key}">
+        (${key}) ${q.options[key]}
+      `;
+      opts.appendChild(label);
     }
+    card.appendChild(opts);
 
-    function accuracyClass(acc) {
-      if (acc >= 0.85) return "score-good";
-      if (acc >= 0.6) return "score-mid";
-      return "score-bad";
-    }
+    const analysis = document.createElement("div");
+    analysis.id = "analysis_" + q.id;
+    analysis.className = "analysis";
+    analysis.style.display = "none";
+    card.appendChild(analysis);
 
-    function formatDuration(seconds) {
-      const m = Math.floor(seconds / 60);
-      const s = Math.floor(seconds % 60);
-      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
-    }
+    container.appendChild(card);
+  });
 
-    // ===== 全局状态 =====
-    let currentQuestions = [];
-    let quizStartTime = null;
-    let timerInterval = null;
-
-    // ===== DOM 元素 =====
-    const numQuestionsInput = document.getElementById("numQuestions");
-    const partsSelect = document.getElementById("partsSelect");
-    const modeSelect = document.getElementById("modeSelect");
-    const questionsContainer = document.getElementById("questionsContainer");
-    const btnStart = document.getElementById("btnStart");
-    const btnSubmit = document.getElementById("btnSubmit");
-    const btnResetCurrent = document.getElementById("btnResetCurrent");
-    const btnShowAllExp = document.getElementById("btnShowAllExp");
-    const summaryBox = document.getElementById("summaryBox");
-    const historyBox = document.getElementById("historyBox");
-    const btnClearHistory = document.getElementById("btnClearHistory");
-    const timerDisplay = document.getElementById("timerDisplay");
-    const avgTimeDisplay = document.getElementById("avgTimeDisplay");
-
-    // ===== 历史记录存取（localStorage） =====
-    const HISTORY_KEY = "toeic_800_trainer_history";
-
-    function loadHistory() {
-      try {
-        const raw = localStorage.getItem(HISTORY_KEY);
-        if (!raw) return [];
-        return JSON.parse(raw);
-      } catch (e) {
-        console.error("Failed to parse history", e);
-        return [];
+  // 绑定 context toggle
+  container.addEventListener("click", function handler(e) {
+    const toggle = e.target.closest(".q-context-toggle");
+    if (toggle) {
+      const qid = toggle.dataset.qid;
+      const ctx = container.querySelector('.q-context[data-qid="'+qid+'"]');
+      if (ctx) {
+        ctx.style.display = ctx.style.display === "none" ? "block" : "none";
       }
     }
+  }, { once: true });
+}
 
-    function saveHistory(history) {
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+// ========== 计时 ==========
+function startTimer() {
+  startTime = Date.now();
+  const timerEl = document.getElementById("timer");
+  const avgEl = document.getElementById("avgTime");
+  timerEl.textContent = "00:00";
+  avgEl.textContent = "--";
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const m = String(Math.floor(elapsed / 60)).padStart(2, "0");
+    const s = String(elapsed % 60).padStart(2, "0");
+    timerEl.textContent = `${m}:${s}`;
+    if (currentQuestions.length > 0) {
+      avgEl.textContent = (elapsed / currentQuestions.length).toFixed(1);
     }
+  }, 1000);
+}
 
-    function renderHistory() {
-      const history = loadHistory();
-      if (!history.length) {
-        historyBox.innerHTML =
-          '<p style="font-size:0.8rem;opacity:0.7;">还没有记录。每次“提交并分析”会自动保存成绩。</p>';
-        return;
-      }
-      let html = '<table class="history-table">';
-      html +=
-        "<thead><tr><th>时间</th><th>模式</th><th>分数</th><th>准确率</th><th>题量</th><th>总用时</th><th>弱项摘要</th></tr></thead><tbody>";
-      for (const item of history.slice().reverse()) {
-        const acc = item.correct / item.total;
-        const accPct = (acc * 100).toFixed(0) + "%";
-        const accClass = accuracyClass(acc);
-        html += "<tr>";
-        html += `<td>${item.timestamp}</td>`;
-        html += `<td>${item.mode || "-"}</td>`;
-        html += `<td><span class="${accClass}">${item.correct}/${item.total}</span></td>`;
-        html += `<td>${accPct}</td>`;
-        html += `<td>${item.total}</td>`;
-        html += `<td>${item.durationStr || "-"}</td>`;
-        html += `<td>${item.weakSummary || "-"}</td>`;
-        html += "</tr>";
-      }
-      html += "</tbody></table>";
-      historyBox.innerHTML = html;
+// ========== 评分与分析 ==========
+function grade() {
+  if (!currentQuestions.length) return;
+
+  const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+  if (timerInterval) clearInterval(timerInterval);
+
+  let correct = 0;
+  let grammarWrong = 0, readingWrong = 0, vocabWrong = 0, listeningWrong = 0;
+
+  currentQuestions.forEach(q => {
+    const chosen = document.querySelector(`input[name="q_${q.id}"]:checked`);
+    const ans = chosen ? chosen.value : null;
+    const analysis = document.getElementById("analysis_" + q.id);
+    if (!analysis) return;
+    analysis.style.display = "block";
+    if (ans === q.answer) {
+      correct++;
+      analysis.className = "analysis correct";
+      analysis.textContent = `✔ 正确。解析：${q.explanation}`;
+    } else {
+      analysis.className = "analysis wrong";
+      analysis.textContent = `✘ 错误。你的答案：${ans || "未作答"}；正确答案：${q.answer}。解析：${q.explanation}`;
+      if (q.skills.includes("Grammar")) grammarWrong++;
+      if (q.skills.includes("Reading")) readingWrong++;
+      if (q.skills.includes("Vocabulary")) vocabWrong++;
+      if (q.skills.includes("ListeningStyle")) listeningWrong++;
     }
+  });
 
-    // ===== 渲染题目 =====
-    function renderQuestions(questions) {
-      questionsContainer.innerHTML = "";
-      if (!questions.length) {
-        questionsContainer.innerHTML =
-          '<p style="font-size:0.9rem;opacity:0.8;">当前条件下没有可用题目，请试着放宽选择或在开发者工具中扩充题库。</p>';
-        return;
-      }
-      questions.forEach((q, index) => {
-        const card = document.createElement("div");
-        card.className = "question-card";
-        card.dataset.questionId = q.id;
+  const total = currentQuestions.length;
+  const accuracy = (correct / total * 100).toFixed(1);
+  const avgTime = (elapsedSec / total).toFixed(1);
 
-        const header = document.createElement("div");
-        header.className = "question-header";
-        header.innerHTML = `
-          <span>#${index + 1} · ${q.part}</span>
-          <span class="tag">${q.skill}</span>
-        `;
-        card.appendChild(header);
+  document.getElementById("timer").textContent =
+    `${String(Math.floor(elapsedSec / 60)).padStart(2,"0")}:${String(elapsedSec % 60).padStart(2,"0")}`;
+  document.getElementById("avgTime").textContent = avgTime;
 
-        const text = document.createElement("div");
-        text.className = "question-text";
-        text.textContent = q.question;
-        card.appendChild(text);
+  const summaryEl = document.getElementById("summaryText");
+  summaryEl.textContent = `共 ${total} 题，答对 ${correct} 题，正确率 ${accuracy}% 。总用时 ${elapsedSec} 秒，平均每题 ${avgTime} 秒。`;
 
-        const choices = document.createElement("div");
-        choices.className = "choices";
-        q.choices.forEach((choice, ci) => {
-          const id = `q${q.id}_c${ci}`;
-          const label = document.createElement("label");
-          label.innerHTML = `
-            <input type="radio" name="q_${q.id}" value="${ci}" id="${id}" />
-            <span>(${String.fromCharCode(65 + ci)}) ${choice}</span>
-          `;
-          choices.appendChild(label);
-        });
-        card.appendChild(choices);
+  const statsEl = document.getElementById("detailStats");
+  statsEl.innerHTML = "";
+  if (grammarWrong + readingWrong + vocabWrong + listeningWrong === 0) {
+    statsEl.textContent = "本次所有题都做对了，继续保持，可以适当增加题量或提高速度。";
+  } else {
+    if (grammarWrong) statsEl.innerHTML += `<span>语法错题：${grammarWrong}</span>`;
+    if (readingWrong) statsEl.innerHTML += `<span>阅读错题：${readingWrong}</span>`;
+    if (vocabWrong) statsEl.innerHTML += `<span>词汇/搭配错题：${vocabWrong}</span>`;
+    if (listeningWrong) statsEl.innerHTML += `<span>Listening-style 语感错题：${listeningWrong}</span>`;
+  }
 
-        const exp = document.createElement("div");
-        exp.className = "explanation";
-        exp.textContent = "解析：" + q.explanation;
-        card.appendChild(exp);
+  // 建议
+  const adviceEl = document.getElementById("advice");
+  let advice = "";
+  if (readingWrong > 0) {
+    advice += "📚 阅读：建议每天至少做 1 小段 Part6/7，先看题干→再读文章，练习快速抓关键信息。\n";
+  }
+  if (grammarWrong > 0) {
+    advice += "📐 语法：把本次错题的句子抄下来，按时态/句型分类复习，同类结构再做 3～5 题。\n";
+  }
+  if (vocabWrong > 0) {
+    advice += "🧠 词汇：把错词加入你自己的单词本，连同例句一起记，第二天+一周后再复习一次。\n";
+  }
+  if (listeningWrong > 0) {
+    advice += "🎧 语感：多听带感情的原声材料（访谈/对话），注意语气和真实意思的差别。\n";
+  }
+  if (!advice) {
+    advice = "本次表现很好，可以逐步把题量加到 8～10 题一组，并开始计时模拟小 Section。";
+  }
+  adviceEl.textContent = advice;
 
-        questionsContainer.appendChild(card);
-      });
+  // 记录历史
+  saveHistory({
+    time: new Date().toLocaleString(),
+    mode: document.getElementById("modeSelect").value,
+    total,
+    correct,
+    accuracy,
+    elapsedSec,
+    avgTime,
+    grammarWrong,
+    readingWrong,
+    vocabWrong,
+    listeningWrong
+  });
+
+  document.getElementById("analysisCard").style.display = "block";
+  renderHistory();
+}
+
+// ========== 历史记录 ==========
+const HISTORY_KEY = "toeic_800_trainer_history_v1";
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(entry) {
+  const list = loadHistory();
+  list.unshift(entry);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 50)));
+}
+
+function renderHistory() {
+  const list = loadHistory();
+  const box = document.getElementById("historyList");
+  if (!list.length) {
+    box.innerHTML = '<div style="font-size:13px;color:#94a3b8;">暂无记录。完成一次训练后会显示在这里。</div>';
+    return;
+  }
+  box.innerHTML = "";
+  list.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `
+      <div><strong>${item.time}</strong></div>
+      <div>
+        <span class="pill">模式：${item.mode}</span>
+        <span class="pill">题数：${item.total}</span>
+        <span class="pill">正确率：${item.accuracy}%</span>
+        <span class="pill">平均用时：${item.avgTime}s</span>
+      </div>
+      <div style="margin-top:2px;">
+        ${item.grammarWrong ? `<span class="pill">语法错：${item.grammarWrong}</span>` : ""}
+        ${item.readingWrong ? `<span class="pill">阅读错：${item.readingWrong}</span>` : ""}
+        ${item.vocabWrong ? `<span class="pill">词汇错：${item.vocabWrong}</span>` : ""}
+        ${item.listeningWrong ? `<span class="pill">听力语感错：${item.listeningWrong}</span>` : ""}
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+// ========== 事件绑定 ==========
+document.getElementById("startBtn").addEventListener("click", () => {
+  const mode = document.getElementById("modeSelect").value;
+  const count = parseInt(document.getElementById("countInput").value, 10) || 4;
+  currentQuestions = pickQuestions(mode, count);
+  if (!currentQuestions.length) {
+    alert("当前模式下题库为空。可以先使用“综合训练”模式。");
+    return;
+  }
+  userAnswers = {};
+  renderQuestions();
+  startTimer();
+});
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (!currentQuestions.length) return;
+  currentQuestions.forEach(q => {
+    const checked = document.querySelector(`input[name="q_${q.id}"]:checked`);
+    if (checked) checked.checked = false;
+    const aDiv = document.getElementById("analysis_" + q.id);
+    if (aDiv) aDiv.style.display = "none";
+  });
+  document.getElementById("analysisCard").style.display = "none";
+});
+
+document.getElementById("questionsContainer").addEventListener("change", (e) => {
+  if (e.target.name && e.target.name.startsWith("q_")) {
+    // 自动评分：所有题都作答后自动结算
+    const allAnswered = currentQuestions.every(q =>
+      document.querySelector(`input[name="q_${q.id}"]:checked`)
+    );
+    if (allAnswered) {
+      grade();
     }
+  }
+});
 
-    // ===== 训练模式 → 默认 Part 映射 =====
-    function getPartsForMode(mode) {
-      switch (mode) {
-        case "grammar":
-          return ["Part5"];
-        case "reading":
-          return ["Part6", "Part7"];
-        case "listening":
-          return ["Listening"];
-        case "mixed":
-        default:
-          return ["Part5", "Part6", "Part7", "Listening"];
-      }
-    }
+document.getElementById("toggleHistory").addEventListener("click", () => {
+  const box = document.getElementById("historyList");
+  box.style.display = box.style.display === "none" ? "block" : "none";
+});
 
-    function getFocusForMode(mode) {
-      switch (mode) {
-        case "grammar":
-          return "Grammar";
-        case "reading":
-          return "Reading";
-        case "listening":
-          return "Listening-style";
-        case "mixed":
-        default:
-          return "Mixed";
-      }
-    }
-
-    // ===== 计时 =====
-    function resetTimer() {
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      timerDisplay.textContent = "00:00";
-      avgTimeDisplay.textContent = "-- 秒";
-      quizStartTime = null;
-    }
-
-    function startTimer() {
-      resetTimer();
-      quizStartTime = new Date();
-      timerInterval = setInterval(() => {
-        if (!quizStartTime) return;
-        const now = new Date();
-        const seconds = Math.floor((now - quizStartTime) / 1000);
-        timerDisplay.textContent = formatDuration(seconds);
-      }, 1000);
-    }
-
-    // ===== 开始出题 =====
-    function startQuiz() {
-      const num = Math.max(
-        1,
-        Math.min(50, parseInt(numQuestionsInput.value, 10) || 1)
-      );
-
-      const selectedMode = modeSelect.value;
-
-      // 如果用户没有特意多选 part，就使用模式默认映射
-      const selectedPartsRaw = Array.from(partsSelect.selectedOptions).map(
-        (o) => o.value
-      );
-      const effectiveParts =
-        selectedPartsRaw.length > 0
-          ? selectedPartsRaw
-          : getPartsForMode(selectedMode);
-
-      const available = QUESTION_BANK.filter((q) =>
-        effectiveParts.includes(q.part)
-      );
-      const shuffled = shuffle(available);
-      currentQuestions = shuffled.slice(0, num);
-
-      renderQuestions(currentQuestions);
-      startTimer();
-
-      summaryBox.innerHTML =
-        '<p class="summary-line">已抽取 <strong>' +
-        currentQuestions.length +
-        "</strong> 题（模式：" +
-        getFocusForMode(selectedMode) +
-        "）。计时已开始，做完题后点击 <strong>“提交并分析”</strong>。</p>" +
-        '<p class="mini">目标 800+ 建议：整体正确率 ≥ 80%，平均每题用时 ≤ 45 秒。</p>';
-    }
-
-    // ===== 提交并分析 =====
-    function submitAndAnalyze() {
-      if (!currentQuestions.length) {
-        alert("请先点击“抽题开始”生成题目。");
-        return;
-      }
-
-      let correctCount = 0;
-      let answeredCount = 0;
-
-      const statsByPart = {};
-      const statsBySkill = {};
-      const statsByFocus = { grammar: { correct: 0, total: 0 },
-                             vocabulary: { correct: 0, total: 0 },
-                             reading: { correct: 0, total: 0 },
-                             listening: { correct: 0, total: 0 } };
-
-      currentQuestions.forEach((q) => {
-        const selected = document.querySelector(
-          'input[name="q_' + q.id + '"]:checked'
-        );
-        const card = document.querySelector(
-          '.question-card[data-question-id="' + q.id + '"]'
-        );
-        const exp = card.querySelector(".explanation");
-
-        let isCorrect = false;
-        if (selected) {
-          answeredCount++;
-          const chosenIndex = parseInt(selected.value, 10);
-          if (chosenIndex === q.correctIndex) {
-            correctCount++;
-            isCorrect = true;
-          }
-        }
-
-        // 部分统计
-        if (!statsByPart[q.part]) statsByPart[q.part] = { correct: 0, total: 0 };
-        statsByPart[q.part].total++;
-        if (isCorrect) statsByPart[q.part].correct++;
-
-        // 技能统计
-        if (!statsBySkill[q.skill])
-          statsBySkill[q.skill] = { correct: 0, total: 0 };
-        statsBySkill[q.skill].total++;
-        if (isCorrect) statsBySkill[q.skill].correct++;
-
-        // 焦点统计（grammar / vocabulary / reading / listening）
-        if (q.focus && statsByFocus[q.focus]) {
-          statsByFocus[q.focus].total++;
-          if (isCorrect) statsByFocus[q.focus].correct++;
-        }
-
-        // 展示解析
-        exp.style.display = "block";
-        exp.classList.remove("correct", "incorrect");
-        exp.classList.add(isCorrect ? "correct" : "incorrect");
-      });
-
-      if (answeredCount === 0) {
-        alert("你还没有作答任何题目，请先选择答案。");
-        return;
-      }
-
-      // 停止计时
-      let durationSeconds = 0;
-      if (quizStartTime) {
-        const now = new Date();
-        durationSeconds = Math.max(
-          1,
-          Math.floor((now - quizStartTime) / 1000)
-        );
-      }
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      const avgTimePerQuestion = durationSeconds / answeredCount;
-      avgTimeDisplay.textContent = avgTimePerQuestion.toFixed(1) + " 秒";
-
-      const total = currentQuestions.length;
-      const accuracy = correctCount / total;
-      const accuracyPct = (accuracy * 100).toFixed(1) + "%";
-
-      const selectedMode = modeSelect.value;
-      const modeLabel = getFocusForMode(selectedMode);
-
-      let html = "";
-      html += `<p class="summary-line">本次模式：<strong>${modeLabel}</strong></p>`;
-      html += `<p class="summary-line">本次得分：<strong class="${accuracyClass(
-        accuracy
-      )}">${correctCount} / ${total}</strong> （准确率 ${accuracyPct}）</p>`;
-      html += `<p class="summary-line">已作答题目：${answeredCount} / ${total}</p>`;
-      html += `<p class="summary-line">总用时：<strong>${formatDuration(
-        durationSeconds
-      )}</strong> · 平均每题：<strong>${avgTimePerQuestion.toFixed(
-        1
-      )} 秒</strong></p>`;
-
-      // Part 统计
-      html += `<p class="summary-line"><strong>按 TOEIC 部分统计：</strong></p>`;
-      html += "<ul style='padding-left:18px;font-size:0.82rem;'>";
-      Object.entries(statsByPart).forEach(([part, stat]) => {
-        const acc = stat.correct / stat.total;
-        const pct = (acc * 100).toFixed(0) + "%";
-        html += `<li>${part}: <span class="${accuracyClass(
-          acc
-        )}">${stat.correct}/${stat.total}</span> (${pct})</li>`;
-      });
-      html += "</ul>";
-
-      // 技能统计
-      html += `<p class="summary-line"><strong>按技能标签统计：</strong></p>`;
-      const skillEntries = Object.entries(statsBySkill).sort(
-        (a, b) => a[1].correct / a[1].total - b[1].correct / b[1].total
-      );
-      html += "<ul style='padding-left:18px;font-size:0.82rem;'>";
-      skillEntries.forEach(([skill, stat]) => {
-        const acc = stat.correct / stat.total;
-        const pct = (acc * 100).toFixed(0) + "%";
-        html += `<li>${skill}: <span class="${accuracyClass(
-          acc
-        )}">${stat.correct}/${stat.total}</span> (${pct})</li>`;
-      });
-      html += "</ul>";
-
-      // 焦点总结：语法 / 词汇 / 阅读 / 听力
-      html += `<p class="summary-line"><strong>按训练焦点统计：</strong></p>`;
-      html += "<ul style='padding-left:18px;font-size:0.82rem;'>";
-      ["grammar", "vocabulary", "reading", "listening"].forEach((f) => {
-        const stat = statsByFocus[f];
-        if (!stat || stat.total === 0) return;
-        const acc = stat.correct / stat.total;
-        const pct = (acc * 100).toFixed(0) + "%";
-        const label =
-          f === "grammar"
-            ? "语法"
-            : f === "vocabulary"
-            ? "词汇"
-            : f === "reading"
-            ? "阅读"
-            : "听力风格";
-        html += `<li>${label}: <span class="${accuracyClass(
-          acc
-        )}">${stat.correct}/${stat.total}</span> (${pct})</li>`;
-      });
-      html += "</ul>";
-
-      // 薄弱点建议（根据焦点 & 时间）
-      const weakFocusEntries = Object.entries(statsByFocus)
-        .filter(([, s]) => s.total > 0)
-        .sort((a, b) => a[1].correct / a[1].total - b[1].correct / b[1].total);
-
-      let weakSummary = "";
-      if (weakFocusEntries.length) {
-        const top = weakFocusEntries[0];
-        const key = top[0];
-        const stat = top[1];
-        const acc = stat.correct / stat.total;
-        const label =
-          key === "grammar"
-            ? "语法"
-            : key === "vocabulary"
-            ? "词汇"
-            : key === "reading"
-            ? "阅读"
-            : "听力风格";
-        weakSummary = `${label} ${stat.correct}/${stat.total}`;
-        let advice = "";
-        if (key === "grammar") {
-          advice =
-            "建议这几天集中做 Part 5 语法题（连词、时态、分词、介词），把错题整理成语法笔记。";
-        } else if (key === "vocabulary") {
-          advice =
-            "建议每天整理 10–15 个高频商务词汇，连同例句一起记忆，并反复在题目中见到它们。";
-        } else if (key === "reading") {
-          advice =
-            "建议练习 3–5 篇短文计时阅读，目标是每题平均用时控制在 45 秒以内，同时专注细节题与推理题。";
-        } else if (key === "listening") {
-          advice =
-            "建议每天听 5–10 分钟真实语速材料（如 TOEIC 听力 / 商务播客），跟读关键句，提升语感。";
-        }
-
-        let speedAdvice = "";
-        if (avgTimePerQuestion > 50) {
-          speedAdvice =
-            "目前平均每题用时偏长，可以尝试先快速浏览题干和选项，再回到文章中定位关键信息，逐步压缩用时。";
-        } else if (avgTimePerQuestion > 40) {
-          speedAdvice =
-            "平均每题用时接近目标，再多练几组题，刻意在保证准确率前提下稍微加快阅读速度。";
-        } else {
-          speedAdvice =
-            "平均每题用时已经不错，接下来可以追求在复杂题型上保持这个节奏。";
-        }
-
-        html += `<div class="summary-highlight">
-          这次训练中相对较弱的方向是：<strong>${weakSummary}</strong>。${advice}<br/>
-          ${speedAdvice}
-        </div>`;
-      } else {
-        html += `<div class="summary-highlight">
-          本次各方向表现均衡。建议继续增加题量，观察 1–2 周的历史记录趋势，再针对最常见的错因集中突破。
-        </div>`;
-      }
-
-      summaryBox.innerHTML = html;
-
-      // 保存到历史记录
-      const history = loadHistory();
-      history.push({
-        timestamp: formatDateTime(new Date()),
-        mode: modeLabel,
-        correct: correctCount,
-        total,
-        duration: durationSeconds,
-        durationStr: formatDuration(durationSeconds),
-        weakSummary
-      });
-      saveHistory(history);
-      renderHistory();
-    }
-
-    // ===== 事件绑定 =====
-    btnStart.addEventListener("click", startQuiz);
-    btnSubmit.addEventListener("click", submitAndAnalyze);
-
-    btnResetCurrent.addEventListener("click", () => {
-      if (!currentQuestions.length) return;
-      currentQuestions.forEach((q) => {
-        const radios = document.querySelectorAll(
-          'input[name="q_' + q.id + '"]'
-        );
-        radios.forEach((r) => (r.checked = false));
-        const card = document.querySelector(
-          '.question-card[data-question-id="' + q.id + '"]'
-        );
-        if (card) {
-          const exp = card.querySelector(".explanation");
-          if (exp) exp.style.display = "none";
-        }
-      });
-      resetTimer();
-      summaryBox.innerHTML =
-        '<p class="summary-line">当前作答已清空，可以重新作答本组题目或重新抽题。</p>' +
-        '<p class="mini">提示：如果想专攻语法，可以选择“语法 · Part 5 强化”模式。</p>';
-    });
-
-    btnShowAllExp.addEventListener("click", () => {
-      const exps = document.querySelectorAll(".explanation");
-      if (!exps.length) return;
-      const anyHidden = Array.from(exps).some(
-        (e) => e.style.display === "none" || !e.style.display
-      );
-      exps.forEach((e) => {
-        e.style.display = anyHidden ? "block" : "none";
-      });
-    });
-
-    btnClearHistory.addEventListener("click", () => {
-      if (!confirm("确定要清空所有历史记录吗？此操作不可恢复。")) return;
-      saveHistory([]);
-      renderHistory();
-    });
-
-    // 页面初始化：设置默认模式对应的 Part，并加载历史
-    window.addEventListener("DOMContentLoaded", () => {
-      // 根据默认模式设置选中的 Part
-      const defaultParts = getPartsForMode(modeSelect.value);
-      Array.from(partsSelect.options).forEach((opt) => {
-        opt.selected = defaultParts.includes(opt.value);
-      });
-
-      // 当模式变化时，自动切换 Part 选择（用户也可以手动再改）
-      modeSelect.addEventListener("change", () => {
-        const parts = getPartsForMode(modeSelect.value);
-        Array.from(partsSelect.options).forEach((opt) => {
-          opt.selected = parts.includes(opt.value);
-        });
-      });
-
-      renderHistory();
-    });
-  </script>
+// 初始渲染历史
+renderHistory();
+</script>
 </body>
 </html>
